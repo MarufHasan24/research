@@ -1,0 +1,57 @@
+name: Track File Metadata (Detailed Log)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  log-file-metadata:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        run: |
+          mkdir -p metadata
+          touch metadata/metadata.json
+          jq -n 'if (input == null or input == "") then {} else input end' metadata/metadata.json > temp.json && mv temp.json metadata/metadata.json
+
+      - name: Detect changed files
+        id: changed
+        run: |
+          git diff-tree --no-commit-id --name-only -r ${{ github.sha }} > changed_files.txt
+          echo "files=$(cat changed_files.txt | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+      - name: Update metadata.json
+        env:
+          PR_TITLE: ${{ github.event.head_commit.message }}
+        run: |
+          TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          cp metadata/metadata.json metadata/metadata.json.bak
+          jq '.' metadata/metadata.json > metadata/_temp.json || echo "{}" > metadata/_temp.json
+
+          for FILE in $(cat changed_files.txt); do
+            if [ -f "$FILE" ]; then
+              SIZE=$(stat -c %s "$FILE")
+              jq \
+                --arg file "$FILE" \
+                --arg date "$TIMESTAMP" \
+                --arg title "${{ env.PR_TITLE }}" \
+                --argjson size "$SIZE" \
+                '.[$file] += [{"date": $date, "title": $title, "size": $size}] // {($file): [{"date": $date, "title": $title, "size": $size}]}' \
+                metadata/_temp.json > metadata/_new.json && mv metadata/_new.json metadata/_temp.json
+            fi
+          done
+
+          mv metadata/_temp.json metadata/metadata.json
+
+      - name: Commit and push metadata
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add metadata/metadata.json
+          git commit -m "📈 Update metadata.json with file change history" || echo "No changes to commit"
+          git push
