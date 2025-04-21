@@ -28,28 +28,26 @@ jobs:
           echo "files=$(cat changed_files.txt | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
       - name: Update metadata.json
-        env:
-          PR_TITLE: ${{ github.event.head_commit.message }}
         run: |
           TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          cp metadata/metadata.json metadata/metadata.json.bak
-          jq '.' metadata/metadata.json > metadata/_temp.json || echo "{}" > metadata/_temp.json
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          cp metadata/metadata.json metadata/_temp.json || echo '{}' > metadata/_temp.json
 
-          for FILE in $(cat changed_files.txt); do
+          while IFS= read -r FILE; do
             if [ -f "$FILE" ]; then
               SIZE=$(stat -c %s "$FILE")
               jq \
                 --arg file "$FILE" \
                 --arg date "$TIMESTAMP" \
-                --arg title "${{ env.PR_TITLE }}" \
+                --arg title "$PR_TITLE" \
                 --argjson size "$SIZE" \
                 '.[$file] += [{"date": $date, "title": $title, "size": $size}] // {($file): [{"date": $date, "title": $title, "size": $size}]}' \
                 metadata/_temp.json > metadata/_new.json && mv metadata/_new.json metadata/_temp.json
             fi
-          done
-
+          done < changed_files.txt
+          cat metadata/_temp.json | jq 'with_entries(select(.value | length > 0))' > metadata/_new.json
           mv metadata/_temp.json metadata/metadata.json
-  
+
       - name: Commit and push metadata
         run: |
           git config user.name "github-actions"
