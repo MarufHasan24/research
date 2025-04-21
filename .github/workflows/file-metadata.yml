@@ -49,12 +49,20 @@ jobs:
           done
 
           mv metadata/_temp.json metadata/metadata.json
-  
-      - name: Commit and push metadata
+
+        # Check if the metadata.json file has changed
+      - name: Check if metadata.json has changed
+        id: check-changes
         run: |
-          git config user.name "github-actions"
+          git diff --exit-code metadata/metadata.json || echo "metadata_changed=true" >> $GITHUB_ENV
+
+      - name: Commit and push changes
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
           git config user.email "actions@github.com"
-          git remote set-url origin https://github.com/MarufHasan24/reasearch.git
+          git fetch origin
+          git config user.name "github-actions"
           git add metadata/metadata.json
-          git commit -m "📈 Update metadata.json with file change history" || echo "No changes to commit"
-          git push https://x-access-token:$secrets.GH_TOKEN@github.com/MarufHasan24/reasearch.git HEAD:main
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/MarufHasan24/reasearch.git
+          git checkout main
