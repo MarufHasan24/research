@@ -7,12 +7,13 @@
 1. [Title Page](00_title_page.md)
 2. [Prologue](01_prologue.md)
 3. [Summary](02_summary.md)
-4. [Introduction](03_introduction.md)
-5. [Context](04_context.md)
-6. [Methodology](05_methodology.md)
-7. [Chapter 1: Exploration](06_chapter1_exploration.md)
-8. [Chapter 2: Design](07_chapter2_design.md)
+4. [Water section](03_water_section.md)
+5. [Wind section](04_wind_section.md)
+6. [Structure section](05_structure_section.md)
+7. [Chapter 1: Exploration](06_exploration.md)
+8. [Chapter 2: Design](07_design.md)
 9. [Outcome](08_outcome.md)
+10. [Demo](09_demo.md)
 
 ## Appendices
 
