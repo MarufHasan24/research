@@ -16,8 +16,10 @@ jobs:
       - name: Setup environment
         run: |
           mkdir -p metadata
-          touch metadata/metadata.json
-          jq -n 'if (input == null or input == "") then {} else input end' metadata/metadata.json > temp.json && mv temp.json metadata/metadata.json
+          # If the metadata.json file doesn't exist, create it as an empty JSON object '{}'
+          if [ ! -f metadata/metadata.json ]; then
+            echo '{}' > metadata/metadata.json
+          fi
 
       - name: Detect changed files
         id: changed
