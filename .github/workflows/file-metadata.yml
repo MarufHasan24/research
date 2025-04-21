@@ -49,11 +49,12 @@ jobs:
           done
 
           mv metadata/_temp.json metadata/metadata.json
-
+  
       - name: Commit and push metadata
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          git remote set-url origin https://github.com/MarufHasan24/reasearch.git
           git add metadata/metadata.json
           git commit -m "📈 Update metadata.json with file change history" || echo "No changes to commit"
-          git push
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/MarufHasan24/reasearch.git HEAD:main
