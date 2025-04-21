@@ -57,4 +57,4 @@ jobs:
           git remote set-url origin https://github.com/MarufHasan24/reasearch.git
           git add metadata/metadata.json
           git commit -m "📈 Update metadata.json with file change history" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/MarufHasan24/reasearch.git HEAD:main
+          git push https://x-access-token:$secrets.GH_TOKEN@github.com/MarufHasan24/reasearch.git HEAD:main
