@@ -51,3 +51,7 @@
 - **Images**: Visual assets used throughout the thesis, including diagrams, photos, and illustrations.
 
 ---
+
+### Note
+
+This index serves as a guide to navigate through the various sections of the thesis. Each section is designed to provide a comprehensive understanding of the project, from its inception to its final outcome. The appendices and assets sections contain supplementary materials that support the main content of the thesis.
